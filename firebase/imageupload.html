@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="eng">
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewpoint" content="width=device-width,  initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatiable" content="ie=edge">
+	<title>www.business.com</title>
+</head>
+
+<body>
+	<input type="file" id="photo">
+	<img id="image"/>  
+	<button onclick="imageUpload()">Upload Image</button>
+</body>
+
+<!-- The core Firebase JS SDK is always required and must be listed first -->
+<script src="https://www.gstatic.com/firebasejs/7.14.2/firebase-app.js"></script>
+
+<!-- TODO: Add SDKs for Firebase products that you want to use
+	 https://firebase.google.com/docs/web/setup#available-libraries -->
+
+	 <!-- file name change  -->
+<script src="https://www.gstatic.com/firebasejs/7.14.2/firebase-storage.js"></script>
+
+<script>
+  // Your web app's Firebase configuration
+  var firebaseConfig = {
+    apiKey: "AIzaSyA-vS9VpGikZoH-eQYODkwRbR00DMLBZDw",
+    authDomain: "image-upload-9acfb.firebaseapp.com",
+    databaseURL: "https://image-upload-9acfb.firebaseio.com",
+    projectId: "image-upload-9acfb",
+    storageBucket: "image-upload-9acfb.appspot.com",
+    messagingSenderId: "297860010094",
+    appId: "1:297860010094:web:a551b4fae859725411d67f",
+    measurementId: "G-5W8TVVB84B"
+  };
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  console.log(firebase)
+
+
+	// image events 	
+  function imageUpload(){
+	  const ref=firebase.storage().ref()
+	  const file=document.querySelector("#photo").files[0]
+	  const name=new Date() + '-' + file.name
+	  const metadata= {
+		contentType: file.type
+	  }
+	  const task=ref.child(name).put(file, metadata)
+	  task
+	  .then(snapshot=>{
+		snapshot.ref.getDownloadURL()
+		.then(url=>{
+			console.log(url)
+			alert("image download successfully.")
+			const image=document.querySelector('#image')
+			image.src=url
+		})
+	  })
+  }
+</script>
+
+</html>

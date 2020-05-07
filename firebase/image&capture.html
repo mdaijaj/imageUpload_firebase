@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="eng">
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewpoint" content="width=device-width,  initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatiable" content="ie=edge">
+	<title>www.business.com</title>
+</head>
+
+<body>
+	<input type="file" id="photo">
+	<img id="image"/>
+	<button onclick="upload_image()">Upload Image</button>
+
+	<!-- camera functionality -->
+	<video id="video" width="200px" height="300px" autoplay controls playsinline></video>
+	<button id="snap">Capture</button>
+	<canvas id="canvas" width="300px" height="400px"></canvas>
+</body>
+
+<!-- The core Firebase JS SDK is always required and must be listed first -->
+<script src="https://www.gstatic.com/firebasejs/7.14.2/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.14.2/firebase-storage.js"></script>
+
+<!-- TODO: Add SDKs for Firebase products that you want to use
+     https://firebase.google.com/docs/web/setup#available-libraries -->
+<script src="https://www.gstatic.com/firebasejs/7.14.2/firebase-analytics.js"></script>
+
+<script>
+  // Your web app's Firebase configuration
+  var firebaseConfig = {
+    apiKey: "AIzaSyDSkVgT2g5H8wF3_3kNCfTN64nt9K2OQm0",
+    authDomain: "imageupload-ef8ae.firebaseapp.com",
+    databaseURL: "https://imageupload-ef8ae.firebaseio.com",
+    projectId: "imageupload-ef8ae",
+    storageBucket: "imageupload-ef8ae.appspot.com",
+    messagingSenderId: "897332927345",
+    appId: "1:897332927345:web:5a9504ad061cec3b1434d0",
+    measurementId: "G-2XDRFXF8XW"
+  };
+
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  console.log(firebase)
+
+  //upload images
+	function upload_image() {
+		const ref=firebase.storage().ref()
+		const file=document.querySelector('#photo').files[0]
+		console.log(file)
+		const name= new Date() + '-' + file.name
+		const metadata={
+			contentType: file.type 
+		}
+
+		//upload image firebase
+		const task= ref.child(name).put(file, metadata)   
+		task.then(snapshot=> snapshot.ref.getDownloadURL())
+		.then(url=>{
+			console.log(url)
+			alert("image upload successfully!")
+			const image= document.querySelector("#image")
+			image.src=url
+		}) 
+	}
+ 
+
+	//camera get id
+	const video=document.getElementById("video")
+	const canvas=document.getElementById("canvas")
+	const snap=document.getElementById("snap")
+
+	//camera size
+	const constraints={
+		audio: false,
+		video: {
+			width: 400, 
+			height:500
+		}
+	}
+
+
+  	//camera option when click submit upload button
+	async function init() {
+		try{
+			const stream= await navigator.mediaDevices.getUserMedia(constraints)
+			handlestream(stream)
+		}
+		catch(error){
+			console.log(error)  
+		}
+	}
+
+	function handlestream(stream){
+		window.stream=stream
+		video.srcObject=stream
+	}
+
+  	// for camera option when capture than upload option show
+	var context= canvas.getContext('2d')
+	snap.addEventListener('click', function (){
+		context.drawImage(video,0,0,640,480)
+		var image= new Image()
+		
+		//image type
+		image.id='pic'
+		image.src= canvas.toDataURL('image/png')
+
+		var button=document.createElement('button')
+		button.textContent='Upload Image'
+
+		document.body.appendChild(button)
+
+		// image store in firebase
+		button.onclick= function(){
+			const ref=firebase.storage().ref()
+
+		//image make path with date
+			ref.child(new Date() + '-' + 'base64').putString(image.src, 'data_url')
+			.then((snapshot)=>{
+				console.log("data uploaded successfully!")
+				alert("image uploaded")
+			})
+		}
+	})
+
+	init()
+</script>
+</html>
